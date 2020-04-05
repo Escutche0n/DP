@@ -6,6 +6,7 @@
  */
 
 #include "hilevel.h"
+#define OFFSET 0x00001000 // Define the space offset for each stack
 
 void hilevel_handler_rst() {
   return;
