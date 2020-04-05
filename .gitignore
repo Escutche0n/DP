@@ -1,2 +1,6 @@
 # ignore all the binary files
 *.o
+
+# ignore binary files image.bin/ image.elf
+image.bin
+image.elf
