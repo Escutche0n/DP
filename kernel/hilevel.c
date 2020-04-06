@@ -24,19 +24,19 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
     next_pid = '0' + next->pid;
   }
 
-    PL011_putc( UART0, '[',      true );
-    PL011_putc( UART0, prev_pid, true );
-    PL011_putc( UART0, '-',      true );
-    PL011_putc( UART0, '>',      true );
-    PL011_putc( UART0, next_pid, true );
-    PL011_putc( UART0, ']',      true );
+  PL011_putc( UART0, '[',      true );
+  PL011_putc( UART0, prev_pid, true );
+  PL011_putc( UART0, '-',      true );
+  PL011_putc( UART0, '>',      true );
+  PL011_putc( UART0, next_pid, true );
+  PL011_putc( UART0, ']',      true );
 
-    executing = next;                                                 // Update executing process to P_{next}
+  executing = next;                                                 // Update executing process to P_{next}
 
   return;
 }
 
-// Copied Schedule Function from lab 3
+// Round-robin where N=n=2 is fixed, we goes from procTab[0], procTab[1] to procTab[2]
 void schedule( ctx_t* ctx ) {
   if     ( executing->pid == procTab[ 0 ].pid ) {
     dispatch( ctx, &procTab[ 0 ], &procTab[ 1 ] );                    // Context switch P_3 -> P_4
