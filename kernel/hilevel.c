@@ -36,8 +36,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
   return;
 }
 
-                                                                      // Round-robin where we repeats procTab[0], procTab[1], procTab[2]
-void schedule( ctx_t* ctx ) {
+void schedule( ctx_t* ctx ) {                                         // Round-robin where we repeats procTab[0][1][2]
   if     ( executing->pid == procTab[ 0 ].pid ) {
     dispatch( ctx, &procTab[ 0 ], &procTab[ 1 ] );                    // Context switch P_3 -> P_4
 
