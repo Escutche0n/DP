@@ -31,7 +31,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
     PL011_putc( UART0, next_pid, true );
     PL011_putc( UART0, ']',      true );
 
-    executing = next;                                                 // Update   executing process to P_{next}
+    executing = next;                                                 // Update executing process to P_{next}
 
   return;
 }
@@ -41,20 +41,20 @@ void schedule( ctx_t* ctx ) {
   if     ( executing->pid == procTab[ 0 ].pid ) {
     dispatch( ctx, &procTab[ 0 ], &procTab[ 1 ] );                    // Context switch P_3 -> P_4
 
-    procTab[ 0 ].status = STATUS_READY;                               // Update   execution status  of P_3 
-    procTab[ 1 ].status = STATUS_EXECUTING;                           // Update   execution status  of P_4
+    procTab[ 0 ].status = STATUS_READY;                               // Update execution status of P_3 
+    procTab[ 1 ].status = STATUS_EXECUTING;                           // Update execution status of P_4
   }
   else if( executing->pid == procTab[ 1 ].pid ) {
     dispatch( ctx, &procTab[ 1 ], &procTab[ 2 ] );                    // Context switch P_4 -> P_5
 
-    procTab[ 1 ].status = STATUS_READY;                               // Update   execution status  of P_4
-    procTab[ 2 ].status = STATUS_EXECUTING;                           // Update   execution status  of P_5
+    procTab[ 1 ].status = STATUS_READY;                               // Update execution status of P_4
+    procTab[ 2 ].status = STATUS_EXECUTING;                           // Update execution status of P_5
   }
   else if( executing->pid == procTab[ 2 ].pid ) {
     dispatch( ctx, &procTab[ 2 ], &procTab[ 0 ] );                    // Context switch P_5 -> P_3
 
-    procTab[ 2 ].status = STATUS_READY;                               // Update   execution status  of P_5
-    procTab[ 0 ].status = STATUS_EXECUTING;                           // Update   execution status  of P_3
+    procTab[ 2 ].status = STATUS_READY;                               // Update execution status of P_5
+    procTab[ 0 ].status = STATUS_EXECUTING;                           // Update execution status of P_3
   }
   return;
 }
