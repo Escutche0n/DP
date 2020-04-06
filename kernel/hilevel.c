@@ -7,7 +7,7 @@
 
 #include "hilevel.h"
 #include <string.h>
-#define OFFSET 0x00001000                                                   // Define the space offset for each stack
+#define OFFSET 0x00001000                                             // Define the space offset for each stack
 
 pcb_t procTab[ MAX_PROCS ]; pcb_t* executing = NULL;
 
@@ -16,11 +16,11 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
   char prev_pid = '?', next_pid = '?';
 
   if( NULL != prev ) {
-    memcpy( &prev->ctx, ctx, sizeof( ctx_t ) );                     // Preserve execution context of P_{prev}
+    memcpy( &prev->ctx, ctx, sizeof( ctx_t ) );                       // Preserve execution context of P_{prev}
     prev_pid = '0' + prev->pid;
   }
   if( NULL != next ) {
-    memcpy( ctx, &next->ctx, sizeof( ctx_t ) );                     // Restore  execution context of P_{next}
+    memcpy( ctx, &next->ctx, sizeof( ctx_t ) );                       // Restore  execution context of P_{next}
     next_pid = '0' + next->pid;
   }
 
@@ -31,7 +31,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
     PL011_putc( UART0, next_pid, true );
     PL011_putc( UART0, ']',      true );
 
-    executing = next;                                                                      // Update   executing process to P_{next}
+    executing = next;                                                 // Update   executing process to P_{next}
 
   return;
 }
@@ -39,22 +39,22 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
 // Copied Schedule Function from lab 3
 void schedule( ctx_t* ctx ) {
   if     ( executing->pid == procTab[ 0 ].pid ) {
-    dispatch( ctx, &procTab[ 0 ], &procTab[ 1 ] );                // context switch P_3 -> P_4
+    dispatch( ctx, &procTab[ 0 ], &procTab[ 1 ] );                    // Context switch P_3 -> P_4
 
-    procTab[ 0 ].status = STATUS_READY;                             // update   execution status  of P_3 
-    procTab[ 1 ].status = STATUS_EXECUTING;                  // update   execution status  of P_4
+    procTab[ 0 ].status = STATUS_READY;                               // Update   execution status  of P_3 
+    procTab[ 1 ].status = STATUS_EXECUTING;                           // Update   execution status  of P_4
   }
   else if( executing->pid == procTab[ 1 ].pid ) {
-    dispatch( ctx, &procTab[ 1 ], &procTab[ 2 ] );               // context switch P_4 -> P_5
+    dispatch( ctx, &procTab[ 1 ], &procTab[ 2 ] );                    // Context switch P_4 -> P_5
 
-    procTab[ 1 ].status = STATUS_READY;                            // update   execution status  of P_4
-    procTab[ 2 ].status = STATUS_EXECUTING;                 // update   execution status  of P_5
+    procTab[ 1 ].status = STATUS_READY;                               // Update   execution status  of P_4
+    procTab[ 2 ].status = STATUS_EXECUTING;                           // Update   execution status  of P_5
   }
   else if( executing->pid == procTab[ 2 ].pid ) {
-    dispatch( ctx, &procTab[ 2 ], &procTab[ 0 ] );               // context switch P_5 -> P_3
+    dispatch( ctx, &procTab[ 2 ], &procTab[ 0 ] );                    // Context switch P_5 -> P_3
 
-    procTab[ 2 ].status = STATUS_READY;                            // update   execution status  of P_5
-    procTab[ 0 ].status = STATUS_EXECUTING;                 // update   execution status  of P_3
+    procTab[ 2 ].status = STATUS_READY;                               // Update   execution status  of P_5
+    procTab[ 0 ].status = STATUS_EXECUTING;                           // Update   execution status  of P_3
   }
   return;
 }
@@ -70,16 +70,16 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   /* Invalidate all entries in the process table, so it's clear they are not
    * representing valid (i.e., active) processes.
    */
-  TIMER0->Timer1Load  = 0x00100000;                               // select period = 2^20 ticks ~= 1 sec
-  TIMER0->Timer1Ctrl  = 0x00000002;                                 // select 32-bit   timer
-  TIMER0->Timer1Ctrl |= 0x00000040;                                 // select periodic timer
-  TIMER0->Timer1Ctrl |= 0x00000020;                                 // enable          timer interrupt
-  TIMER0->Timer1Ctrl |= 0x00000080;                                 // enable          timer
+  TIMER0->Timer1Load  = 0x00100000;                                   // Select period = 2^20 ticks ~= 1 sec
+  TIMER0->Timer1Ctrl  = 0x00000002;                                   // Select 32-bit   timer
+  TIMER0->Timer1Ctrl |= 0x00000040;                                   // Select periodic timer
+  TIMER0->Timer1Ctrl |= 0x00000020;                                   // Enable          timer interrupt
+  TIMER0->Timer1Ctrl |= 0x00000080;                                   // Enable          timer
 
-  GICC0->PMR          = 0x000000F0;                                         // unmask all            interrupts
-  GICD0->ISENABLER1  |= 0x00000010;                              // enable timer          interrupt
-  GICC0->CTLR         = 0x00000001;                                        // enable GIC interface
-  GICD0->CTLR         = 0x00000001;                                        // enable GIC distributor
+  GICC0->PMR          = 0x000000F0;                                   // Unmask all      interrupts
+  GICD0->ISENABLER1  |= 0x00000010;                                   // Enable timer    interrupt
+  GICC0->CTLR         = 0x00000001;                                   // Enable GIC      interface
+  GICD0->CTLR         = 0x00000001;                                   // Enable GIC      distributor
 
   for( int i = 0; i < MAX_PROCS; i++ ) {
     procTab[ i ].status = STATUS_INVALID;
@@ -93,24 +93,24 @@ void hilevel_handler_rst( ctx_t* ctx ) {
    * - the PC and SP values match the entry point and top of stack. 
    */
 
-  memset( &procTab[ 0 ], 0, sizeof( pcb_t ) );                                                          // initialise 0-th PCB = P_3
-  procTab[ 0 ].pid      = 1;
+  memset( &procTab[ 0 ], 0, sizeof( pcb_t ) );                        // Initialise 0-th PCB = P_3
+  procTab[ 0 ].pid      = 1;                                          // Set pid = 1
   procTab[ 0 ].status   = STATUS_READY;
   procTab[ 0 ].tos      = ( uint32_t )( &tos_P3  );
   procTab[ 0 ].ctx.cpsr = 0x50;
   procTab[ 0 ].ctx.pc   = ( uint32_t )( &main_P3 );
   procTab[ 0 ].ctx.sp   = procTab[ 0 ].tos;
 
-  memset( &procTab[ 1 ], 0, sizeof( pcb_t ) );                                                     // initialise 1-st PCB = P_4
-  procTab[ 1 ].pid      = 2;
+  memset( &procTab[ 1 ], 0, sizeof( pcb_t ) );                        // Initialise 1-st PCB = P_4
+  procTab[ 1 ].pid      = 2;                                          // Set pid = 2
   procTab[ 1 ].status   = STATUS_READY;
   procTab[ 1 ].tos      = ( uint32_t )( &tos_P4  );
   procTab[ 1 ].ctx.cpsr = 0x50;
   procTab[ 1 ].ctx.pc   = ( uint32_t )( &main_P4 );
   procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
 
-  memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                                                    // initialise 2-nd PCB = P_5
-  procTab[ 2 ].pid      = 3;                                                                                            // set pid = 3
+  memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
+  procTab[ 2 ].pid      = 3;                                          // Set pid = 3
   procTab[ 2 ].status   = STATUS_READY;
   procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
   procTab[ 2 ].ctx.cpsr = 0x50;
@@ -163,6 +163,26 @@ void hilevel_handler_svc( ctx_t* ctx, uint32_t id ) {
       
       ctx->gpr[ 0 ] = n;
 
+      break;
+    }
+
+    case 0x03 : {
+      break;
+    }
+
+    case 0x04 : {
+      break;
+    }
+
+    case 0x05 : {
+      break;
+    }
+
+    case 0x06 : {
+      break;
+    }
+
+    case 0x07 : {
       break;
     }
 
