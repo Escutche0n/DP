@@ -76,7 +76,7 @@ void hilevel_handler_rst(ctx_t* ctx              ) {
     procTab[ i ].status = STATUS_INVALID;
   }
 
-  /* Automatically execute the user programs P1 and P2 by setting the fields
+  /* Automatically execute the user programs P3, P4 and P5 by setting the fields
    * in two associated PCBs.  Note in each case that
    *    
    * - the CPSR value of 0x50 means the processor is switched into USR mode, 
@@ -84,7 +84,7 @@ void hilevel_handler_rst(ctx_t* ctx              ) {
    * - the PC and SP values match the entry point and top of stack. 
    */
 
-  memset( &procTab[ 0 ], 0, sizeof( pcb_t ) ); // initialise 0-th PCB = P_1
+  memset( &procTab[ 0 ], 0, sizeof( pcb_t ) ); // initialise 0-th PCB = P_3
   procTab[ 0 ].pid      = 1;
   procTab[ 0 ].status   = STATUS_READY;
   procTab[ 0 ].tos      = ( uint32_t )( &tos_P3  );
@@ -92,7 +92,7 @@ void hilevel_handler_rst(ctx_t* ctx              ) {
   procTab[ 0 ].ctx.pc   = ( uint32_t )( &main_P3 );
   procTab[ 0 ].ctx.sp   = procTab[ 0 ].tos;
 
-  memset( &procTab[ 1 ], 0, sizeof( pcb_t ) ); // initialise 1-st PCB = P_2
+  memset( &procTab[ 1 ], 0, sizeof( pcb_t ) ); // initialise 1-st PCB = P_4
   procTab[ 1 ].pid      = 2;
   procTab[ 1 ].status   = STATUS_READY;
   procTab[ 1 ].tos      = ( uint32_t )( &tos_P4  );
@@ -100,7 +100,7 @@ void hilevel_handler_rst(ctx_t* ctx              ) {
   procTab[ 1 ].ctx.pc   = ( uint32_t )( &main_P4 );
   procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
 
-  memset( &procTab[ 2 ], 0, sizeof( pcb_t ) ); // initialise 2-nd PCB = P_3
+  memset( &procTab[ 2 ], 0, sizeof( pcb_t ) ); // initialise 2-nd PCB = P_5
   procTab[ 2 ].pid      = 3;
   procTab[ 2 ].status   = STATUS_READY;
   procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );

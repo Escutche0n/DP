@@ -17,7 +17,8 @@
 // Include functionality relating to the platform.
 
 #include   "GIC.h"
-#include "PL011.h"
+#include "PL011.h"                                                                                                                // PrimeCell UART
+#include "SP804.h"                                                                                                                // Dual timer module
 
 // Include functionality relating to the   kernel.
 
