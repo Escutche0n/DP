@@ -20,7 +20,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
     prev_pid = '0' + prev->pid;
   }
   if( NULL != next ) {
-    memcpy( ctx, &next->ctx, sizeof( ctx_t ) );                       // Restore  execution context of P_{next}
+    memcpy( ctx, &next->ctx, sizeof( ctx_t ) );                       // Restore execution context of P_{next}
     next_pid = '0' + next->pid;
   }
 
