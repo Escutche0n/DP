@@ -31,12 +31,12 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
   PL011_putc( UART0, next_pid, true );
   PL011_putc( UART0, ']',      true );
 
-  executing = next;                                                 // Update executing process to P_{next}
+  executing = next;                                                   // Update executing process to P_{next}
 
   return;
 }
 
-// Round-robin where N=n=2 is fixed, we goes from procTab[0], procTab[1] to procTab[2]
+                                                                      // Round-robin where we repeats procTab[0], procTab[1], procTab[2]
 void schedule( ctx_t* ctx ) {
   if     ( executing->pid == procTab[ 0 ].pid ) {
     dispatch( ctx, &procTab[ 0 ], &procTab[ 1 ] );                    // Context switch P_3 -> P_4
