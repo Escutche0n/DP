@@ -55,6 +55,24 @@ void schedule( ctx_t* ctx ) {                                         // Round-r
     procTab[ 2 ].status = STATUS_READY;                               // Update execution status of P_5
     procTab[ 0 ].status = STATUS_EXECUTING;                           // Update execution status of P_3
   }
+
+  // Priority Scheduling
+  int n = -1;
+
+  // for (int i =0; i < MAX_PROCS; i++){
+  //   if ( executing->pid == procTab[ i ].pid ) {
+  //     n = i                                                                                                 // 找出现在的executing 的 index
+  //   }
+  // }
+
+  // for ( i = n+1 ; i < MAX_PROCS ; i++) {
+  //   procTab[ n ].status = STATUS_READY;
+  //   procTab[ i ].status = STATUS_EXECUTING;
+  //   dispatch( ctx, &procTab[ i ], &procTab[ n ]);
+  // } else {
+  //   continue;
+  // }
+
   return;
 }
 
