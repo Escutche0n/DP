@@ -63,7 +63,6 @@ typedef struct {
   uint32_t    tos;  // address of Top of Stack (ToS)
      ctx_t    ctx;  // execution context
      int      age;  // age of pcb
-     int priority;  // static basic priority
 } pcb_t;
 
 #endif
