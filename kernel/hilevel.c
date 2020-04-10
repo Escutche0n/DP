@@ -36,43 +36,22 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
   return;
 }
 
-                                                                      // Round-robin where we repeats procTab[0], procTab[1], procTab[2]
-void schedule( ctx_t* ctx ) {
-  if     ( executing->pid == procTab[ 0 ].pid ) {
-    dispatch( ctx, &procTab[ 0 ], &procTab[ 1 ] );                    // Context switch P_3 -> P_4
-
-    procTab[ 0 ].status = STATUS_READY;                               // Update execution status of P_3 
-    procTab[ 1 ].status = STATUS_EXECUTING;                           // Update execution status of P_4
-  }
-  else if( executing->pid == procTab[ 1 ].pid ) {
-    dispatch( ctx, &procTab[ 1 ], &procTab[ 2 ] );                    // Context switch P_4 -> P_5
-
-    procTab[ 1 ].status = STATUS_READY;                               // Update execution status of P_4
-    procTab[ 2 ].status = STATUS_EXECUTING;                           // Update execution status of P_5
-  }
-  else if( executing->pid == procTab[ 2 ].pid ) {
-    dispatch( ctx, &procTab[ 2 ], &procTab[ 0 ] );                    // Context switch P_5 -> P_3
-
-    procTab[ 2 ].status = STATUS_READY;                               // Update execution status of P_5
-    procTab[ 0 ].status = STATUS_EXECUTING;                           // Update execution status of P_3
-  }
-
-  // Priority Scheduling
+void schedule( ctx_t* ctx ) {                                         // Priority Scheduling
   int n = -1;
+  int priority = -1;
 
-  // for (int i =0; i < MAX_PROCS; i++){
-  //   if ( executing->pid == procTab[ i ].pid ) {
-  //     n = i                                                                                                 // 找出现在的executing 的 index
-  //   }
-  // }
+  for (int i =0; i < MAX_PROCS; i++){
+    if ( executing->pid == procTab[ i ].pid ) {
+      n = i;                                                          // Store the executing ProcTab index in n
+    }
 
-  // for ( i = n+1 ; i < MAX_PROCS ; i++) {
-  //   procTab[ n ].status = STATUS_READY;
-  //   procTab[ i ].status = STATUS_EXECUTING;
-  //   dispatch( ctx, &procTab[ i ], &procTab[ n ]);
-  // } else {
-  //   continue;
-  // }
+    procTab[n].age ++;                                                // Increase all the ages to 0.
+
+    if (procTab [i].priority > ) {                                  // Find the maximum prioiry ProcTab 不一定要等与零
+      procTab[ n ].status = STATUS_READY;                             // SWAP
+      procTab[ i ].status = STATUS_EXECUTING;
+      dispatch( ctx, &procTab[ i ], &procTab[ n ]);
+    }
 
   return;
 }
@@ -118,6 +97,8 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 0 ].ctx.cpsr = 0x50;
   procTab[ 0 ].ctx.pc   = ( uint32_t )( &main_P3 );
   procTab[ 0 ].ctx.sp   = procTab[ 0 ].tos;
+  procTab[ 0 ].age      = 0;
+  procTab[ 0 ].priority = 3;
 
   memset( &procTab[ 1 ], 0, sizeof( pcb_t ) );                        // Initialise 1-st PCB = P_4
   procTab[ 1 ].pid      = 2;                                          // Set pid = 2
@@ -126,6 +107,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 1 ].ctx.cpsr = 0x50;
   procTab[ 1 ].ctx.pc   = ( uint32_t )( &main_P4 );
   procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
+  procTab[ 1 ].age      = 1;
 
   memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
   procTab[ 2 ].pid      = 3;                                          // Set pid = 3
@@ -134,6 +116,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 2 ].ctx.cpsr = 0x50;
   procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
   procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
+  procTab[ 2 ].age      = 2;
 
   /* Once the PCBs are initialised, we arbitrarily select the 0-th PCB to be 
    * executed: there is no need to preserve the execution context, since it 
