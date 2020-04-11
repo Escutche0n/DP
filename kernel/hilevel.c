@@ -42,9 +42,9 @@ void schedule( ctx_t* ctx ) {                                         // Priorit
 
   for (int i = 0; i < MAX_PROCS; i++){
     if ( executing->pid == procTab[ i ].pid ) {
-      n = i;                                                          // Store the executing ProcTab index in n
+      n = i;                                                          // Assign the executing ProcTab to n.
     }
-    procTab[i].age += 1;                                              // Increase all the ages by 1.
+    procTab[i].age += 1;                                              // Increase all the priorities by 1.
 
     if (highest_priority < procTab[i].age) {
       procTab[ n ].status = STATUS_READY;
