@@ -36,7 +36,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
   return;
 }
 
-void schedule( ctx_t* ctx ) {                                         // Priority Scheduling
+void schedule( ctx_t* ctx ) {                                         // Replaced RR with Priority Scheduling
   int n = -1;
   int highest_priority = -1;
 
@@ -49,7 +49,7 @@ void schedule( ctx_t* ctx ) {                                         // Priorit
     if (highest_priority < procTab[i].age) {
       procTab[ n ].status = STATUS_READY;
       procTab[ i ].status = STATUS_EXECUTING;
-      dispatch( ctx, &procTab[ n ], &procTab[ i ]);                   // SWAP the ready procTab with the executing one
+      dispatch( ctx, &procTab[ n ], &procTab[ i ] );                   // SWAP the ready procTab with the executing one
       procTab[ n ].age = 0;                                           // Reset the aging of the executed procTab
       highest_priority = procTab[ i ].age;                            // Update the highest priority.
     }
