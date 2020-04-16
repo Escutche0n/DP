@@ -25,7 +25,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
   }
 
   PL011_putc( UART0, '[',      true );
-  PL011_putc( UART0, prev_pid, true );
+  PL011_putc( UART0, prev_pid, true );  
   PL011_putc( UART0, '-',      true );
   PL011_putc( UART0, '>',      true );
   PL011_putc( UART0, next_pid, true );
@@ -37,25 +37,29 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
 }
 
 void schedule( ctx_t* ctx ) {                                         // Replaced RR with Priority Scheduling
-  int n = -1;
-  int highest_priority = -1;
 
-  for (int i = 0; i < MAX_PROCS; i++){
-    if ( executing->pid == procTab[ i ].pid ) {
-      n = i;                                                          // Assign the executing ProcTab to n.
+  int max_age = -1;
+  int max_index = 0;
+
+  for (int i = 0; i < MAX_PROCS; i++){                                // Increasing all the aging by 1
+    if (executing->pid == procTab[ i ].pid) {
+      continue;
+    } else {
+      procTab[ i ].age += 1;
     }
-    procTab[i].age += 1;                                              // Increase all the priorities by 1.
-
-    if (highest_priority < procTab[i].age) {
-      procTab[ n ].status = STATUS_READY;
-      procTab[ i ].status = STATUS_EXECUTING;
-      dispatch( ctx, &procTab[ n ], &procTab[ i ] );                   // SWAP the ready procTab with the executing one
-      procTab[ n ].age = 0;                                           // Reset the aging of the executed procTab
-      highest_priority = procTab[ i ].age;                            // Update the highest priority.
-    }
-
   }
-
+  
+  for (int i = 0; i < MAX_PROCS; i++){
+    if(procTab[i].age > max_age) {
+      max_age = procTab[ i ].age;
+      max_index = i;
+    }
+  }
+  executing->age = 0;
+  dispatch( ctx, executing, &procTab[ max_index ] );
+  executing->status = STATUS_READY;
+  procTab[ max_index ].status = STATUS_EXECUTING;
+ 
   return;
 }
 
@@ -63,8 +67,8 @@ extern void     main_P3();
 extern uint32_t tos_P3;
 extern void     main_P4(); 
 extern uint32_t tos_P4;
-extern void     main_P5(); 
-extern uint32_t tos_P5;
+// extern void     main_P5(); 
+// extern uint32_t tos_P5;
 
 void hilevel_handler_rst( ctx_t* ctx ) {
   /* Invalidate all entries in the process table, so it's clear they are not
@@ -82,7 +86,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   GICD0->CTLR         = 0x00000001;                                   // Enable GIC      distributor
 
   for( int i = 0; i < MAX_PROCS; i++ ) {
-    procTab[ i ].status = STATUS_INVALID;
+    procTab[ i ].status = STATUS_INVALID;                             // Initialised STATUS_INVALID;
   }
 
   /* Automatically execute the user programs P3, P4 and P5 by setting the fields
@@ -111,14 +115,14 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
   procTab[ 1 ].age      = 0;
 
-  memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
-  procTab[ 2 ].pid      = 3;                                          // Set pid = 3
-  procTab[ 2 ].status   = STATUS_READY;
-  procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
-  procTab[ 2 ].ctx.cpsr = 0x50;
-  procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
-  procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
-  procTab[ 2 ].age      = 0;
+  // memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
+  // procTab[ 2 ].pid      = 3;                                          // Set pid = 3
+  // procTab[ 2 ].status   = STATUS_READY;
+  // procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
+  // procTab[ 2 ].ctx.cpsr = 0x50;
+  // procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
+  // procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
+  // procTab[ 2 ].age      = 0;
 
   /* Once the PCBs are initialised, we arbitrarily select the 0-th PCB to be 
    * executed: there is no need to preserve the execution context, since it 
