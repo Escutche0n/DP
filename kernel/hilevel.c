@@ -49,7 +49,7 @@ void schedule( ctx_t* ctx ) {                                         // Replace
     if (highest_priority < procTab[i].age) {
       procTab[ n ].status = STATUS_READY;
       procTab[ i ].status = STATUS_EXECUTING;
-      dispatch( ctx, &procTab[ n ], &procTab[ i ] );                   // SWAP the ready procTab with the executing one
+      dispatch( ctx, &procTab[ n ], &procTab[ i ] );                  // SWAP the ready procTab with the executing one
       procTab[ n ].age = 0;                                           // Reset the aging of the executed procTab
       highest_priority = procTab[ i ].age;                            // Update the highest priority.
     }
