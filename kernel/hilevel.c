@@ -55,11 +55,13 @@ void schedule( ctx_t* ctx ) {                                         // Replace
       max_index = i;
     }
   }
-  executing->age = 0;
+
   dispatch( ctx, executing, &procTab[ max_index ] );
   executing->status = STATUS_READY;
   procTab[ max_index ].status = STATUS_EXECUTING;
- 
+  for (int i = 0; i < MAX_PROCS; i++){
+    procTab[i].age = 0;
+  }
   return;
 }
 
@@ -67,8 +69,8 @@ extern void     main_P3();
 extern uint32_t tos_P3;
 extern void     main_P4(); 
 extern uint32_t tos_P4;
-// extern void     main_P5(); 
-// extern uint32_t tos_P5;
+extern void     main_P5(); 
+extern uint32_t tos_P5;
 
 void hilevel_handler_rst( ctx_t* ctx ) {
   /* Invalidate all entries in the process table, so it's clear they are not
@@ -89,7 +91,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
     procTab[ i ].status = STATUS_INVALID;                             // Initialised STATUS_INVALID;
   }
 
-  /* Automatically execute the user programs P3, P4 and P5 by setting the fields
+  /* Automatically execute the user programs P3 and P4 by setting the fields
    * in two associated PCBs.  Note in each case that
    *    
    * - the CPSR value of 0x50 means the processor is switched into USR mode, 
@@ -115,14 +117,14 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
   procTab[ 1 ].age      = 0;
 
-  // memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
-  // procTab[ 2 ].pid      = 3;                                          // Set pid = 3
-  // procTab[ 2 ].status   = STATUS_READY;
-  // procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
-  // procTab[ 2 ].ctx.cpsr = 0x50;
-  // procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
-  // procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
-  // procTab[ 2 ].age      = 0;
+  memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
+  procTab[ 2 ].pid      = 3;                                          // Set pid = 3
+  procTab[ 2 ].status   = STATUS_READY;
+  procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
+  procTab[ 2 ].ctx.cpsr = 0x50;
+  procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
+  procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
+  procTab[ 2 ].age      = 0;
 
   /* Once the PCBs are initialised, we arbitrarily select the 0-th PCB to be 
    * executed: there is no need to preserve the execution context, since it 
@@ -142,7 +144,7 @@ void hilevel_handler_irq( ctx_t* ctx ) {
   // Step 4: handle the interrupt, then clear (or reset) the source.
   if( id == GIC_SOURCE_TIMER0 ) {
     schedule( ctx );
-    PL011_putc( UART0, 'T', true );
+    // PL011_putc( UART0, 'T', true );
     TIMER0->Timer1IntClr = 0x01;
   }
 
