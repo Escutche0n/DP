@@ -58,9 +58,7 @@ void schedule( ctx_t* ctx ) {                                         // Replace
   dispatch( ctx, executing, &procTab[ max_index ] );
   executing->status = STATUS_READY;
   procTab[ max_index ].status = STATUS_EXECUTING;
-
   procTab[ max_index ].age = 0;
-  procTab[ max_index ].priority = 0;
   
   return;
 }
