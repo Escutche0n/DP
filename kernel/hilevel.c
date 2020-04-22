@@ -58,12 +58,8 @@ void schedule( ctx_t* ctx ) {                                         // Replace
   dispatch( ctx, executing, &procTab[ max_index ] );
   executing->status = STATUS_READY;
   procTab[ max_index ].status = STATUS_EXECUTING;
-<<<<<<< HEAD
   procTab[ max_index ].age = 0;
   
-=======
- 
->>>>>>> parent of 455c8e9... Stage1 Done
   return;
 }
 
@@ -121,7 +117,6 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 1 ].age      = 0;
   procTab[ 1 ].priority = 2;
 
-<<<<<<< HEAD
   memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
   procTab[ 2 ].pid      = 3;                                          // Set pid = 3
   procTab[ 2 ].status   = STATUS_READY;
@@ -131,16 +126,6 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
   procTab[ 2 ].age      = 0;
   procTab[ 2 ].priority = 3;
-=======
-  // memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
-  // procTab[ 2 ].pid      = 3;                                          // Set pid = 3
-  // procTab[ 2 ].status   = STATUS_READY;
-  // procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
-  // procTab[ 2 ].ctx.cpsr = 0x50;
-  // procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
-  // procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
-  // procTab[ 2 ].age      = 0;
->>>>>>> parent of 455c8e9... Stage1 Done
 
   /* Once the PCBs are initialised, we arbitrarily select the 0-th PCB to be 
    * executed: there is no need to preserve the execution context, since it 
