@@ -145,7 +145,7 @@ void hilevel_handler_irq( ctx_t* ctx ) {
   // Step 4: handle the interrupt, then clear (or reset) the source.
   if( id == GIC_SOURCE_TIMER0 ) {
     schedule( ctx );
-    // PL011_putc( UART0, 'T', true );
+    PL011_putc( UART0, 'T', true );
     TIMER0->Timer1IntClr = 0x01;
   }
 
