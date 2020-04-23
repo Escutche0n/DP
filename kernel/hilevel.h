@@ -38,7 +38,7 @@
  * - a type that captures a process PCB.
  */
 
-#define MAX_PROCS 3
+#define MAX_PROCS 10
 
 typedef int pid_t;
 

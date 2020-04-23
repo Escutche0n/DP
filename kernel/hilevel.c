@@ -36,30 +36,30 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
   return;
 }
 
-void schedule( ctx_t* ctx ) {                                         // Replaced RR with Priority Scheduling (Ageing)
+void schedule( ctx_t* ctx ) {
   int max_priority = -1;
   int max_index = -1;
-
-  for (int i = 0; i < MAX_PROCS; i++){                                // Increasing all the aging by 1
-    if (executing->pid == procTab[ i ].pid) {                         // except the executing procTab
+  for( int i = 0; i < MAX_PROCS; i ++ ){
+    if( executing->pid == procTab[ i ].pid) {
       continue;
-    } else {
-      procTab[ i ].age += 1;
+    }else{
+      procTab[ i ].age ++;
     }
   }
 
-  for (int i = 0; i < MAX_PROCS; i++){
-    if(procTab[ i ].priority + procTab[ i ].age > max_priority) {
+  for( int i = 0; i < MAX_PROCS; i ++ ){
+    if( procTab[ i ].priority + procTab[ i ].age > max_priority){
       max_priority = procTab[ i ].priority + procTab[ i ].age;
       max_index = i;
     }
+    procTab[ i ].age = 0;
   }
 
-  dispatch( ctx, executing, &procTab[ max_index ] );
-  executing->status = STATUS_READY;
-  procTab[ max_index ].status = STATUS_EXECUTING;
-  procTab[ max_index ].age = 0;
-  
+  if( procTab[ max_index ].status == STATUS_READY ){
+    executing -> status = STATUS_READY;
+    procTab[ max_index ].status = STATUS_EXECUTING;
+    dispatch( ctx, executing, &procTab[ max_index ] );
+  }
   return;
 }
 
