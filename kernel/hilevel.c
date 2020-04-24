@@ -68,8 +68,8 @@ extern void     main_P3();
 extern uint32_t tos_P3;
 extern void     main_P4(); 
 extern uint32_t tos_P4;
-extern void     main_P5(); 
-extern uint32_t tos_P5;
+// extern void     main_P5(); 
+// extern uint32_t tos_P5;
 
 void hilevel_handler_rst( ctx_t* ctx ) {
   /* Invalidate all entries in the process table, so it's clear they are not
@@ -90,7 +90,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
     procTab[ i ].status = STATUS_INVALID;                             // Initialised STATUS_INVALID;
   }
 
-  /* Automatically execute the user programs P3 and P4 by setting the fields
+  /* Automatically execute the user programs P3, P4 and P5 by setting the fields
    * in two associated PCBs.  Note in each case that
    *    
    * - the CPSR value of 0x50 means the processor is switched into USR mode, 
@@ -146,7 +146,7 @@ void hilevel_handler_irq( ctx_t* ctx ) {
   // Step 4: handle the interrupt, then clear (or reset) the source.
   if( id == GIC_SOURCE_TIMER0 ) {
     schedule( ctx );
-    // PL011_putc( UART0, 'T', true );
+    PL011_putc( UART0, 'T', true );
     TIMER0->Timer1IntClr = 0x01;
   }
 
