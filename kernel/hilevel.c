@@ -39,28 +39,27 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
 void schedule( ctx_t* ctx ) {
   int max_priority = -1;
   int max_index = -1;
-  
   for( int i = 0; i < MAX_PROCS; i ++ ){
-    if( executing->pid == procTab[ i ].pid) {
+    if( executing->pid == procTab[ i ].pid ){
       continue;
-    }else{
+    } else {
       procTab[ i ].age ++;
     }
   }
 
-  for( int i = 0; i < MAX_PROCS; i ++ ){
+  for( int i = 0; i < MAX_PROCS; i ++ ){                               // 找出最大的优先级的值与其序列数
     if( procTab[ i ].priority + procTab[ i ].age > max_priority){
       max_priority = procTab[ i ].priority + procTab[ i ].age;
       max_index = i;
     }
     procTab[ i ].age = 0;
   }
-  
   if( procTab[ max_index ].status == STATUS_READY ){
     executing -> status = STATUS_READY;
     procTab[ max_index ].status = STATUS_EXECUTING;
     dispatch( ctx, executing, &procTab[ max_index ] );
   }
+
   return;
 }
 
@@ -68,8 +67,8 @@ extern void     main_P3();
 extern uint32_t tos_P3;
 extern void     main_P4(); 
 extern uint32_t tos_P4;
-// extern void     main_P5(); 
-// extern uint32_t tos_P5;
+extern void     main_P5(); 
+extern uint32_t tos_P5;
 
 void hilevel_handler_rst( ctx_t* ctx ) {
   /* Invalidate all entries in the process table, so it's clear they are not
@@ -146,7 +145,7 @@ void hilevel_handler_irq( ctx_t* ctx ) {
   // Step 4: handle the interrupt, then clear (or reset) the source.
   if( id == GIC_SOURCE_TIMER0 ) {
     schedule( ctx );
-    PL011_putc( UART0, 'T', true );
+    // PL011_putc( UART0, 'T', true );
     TIMER0->Timer1IntClr = 0x01;
   }
 
