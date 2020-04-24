@@ -39,6 +39,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
 void schedule( ctx_t* ctx ) {
   int max_priority = -1;
   int max_index = -1;
+  
   for( int i = 0; i < MAX_PROCS; i ++ ){
     if( executing->pid == procTab[ i ].pid) {
       continue;
@@ -54,7 +55,7 @@ void schedule( ctx_t* ctx ) {
     }
     procTab[ i ].age = 0;
   }
-
+  
   if( procTab[ max_index ].status == STATUS_READY ){
     executing -> status = STATUS_READY;
     procTab[ max_index ].status = STATUS_EXECUTING;
