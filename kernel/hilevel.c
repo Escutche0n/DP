@@ -52,8 +52,10 @@ void schedule( ctx_t* ctx ) {
       max_priority = procTab[ i ].priority + procTab[ i ].age;
       max_index = i;
     }
-    procTab[ i ].age = 0;
   }
+
+  procTab[ max_index ].age = 0;
+
   if( procTab[ max_index ].status == STATUS_READY ){
     executing -> status = STATUS_READY;
     procTab[ max_index ].status = STATUS_EXECUTING;
@@ -115,7 +117,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 1 ].ctx.pc   = ( uint32_t )( &main_P4 );
   procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
   procTab[ 1 ].age      = 0;
-  procTab[ 1 ].priority = 2;
+  procTab[ 1 ].priority = 1;
 
   memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
   procTab[ 2 ].pid      = 3;                                          // Set pid = 3
@@ -125,7 +127,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
   procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
   procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
   procTab[ 2 ].age      = 0;
-  procTab[ 2 ].priority = 3;
+  procTab[ 2 ].priority = 1;
 
   /* Once the PCBs are initialised, we arbitrarily select the 0-th PCB to be 
    * executed: there is no need to preserve the execution context, since it 
@@ -178,7 +180,7 @@ void hilevel_handler_svc( ctx_t* ctx, uint32_t id ) {
 
     case 0x03 : { // 0x03 => exit( int x )
       // int x = ctx->gpr[0];
-      // current->status = STATUS_TERMINATED;
+      // exce->status = STATUS_TERMINATED;
       // current->pid = -1;
       // priority(ctx);
       // break;

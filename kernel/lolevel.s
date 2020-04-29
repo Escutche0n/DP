@@ -1,7 +1,7 @@
 /* Copyright (C) 2017 Daniel Page <csdsp@bristol.ac.uk>
  *
- * Use of this source code is restricted per the CC BY-NC-ND license, a copy of 
- * which can be found via http://creativecommons.org (and should be included as 
+ * Use of this source code is restricted per the CC BY-NC-ND license, a copy of
+ * which can be found via http://creativecommons.org (and should be included as
  * LICENSE.txt within the associated archive or repository).
  */
 
@@ -21,21 +21,78 @@ lolevel_handler_rst: bl    int_init                @ initialise interrupt vector
                      msr   cpsr, #0xD3             @ enter SVC mode with IRQ and FIQ interrupts disabled
                      ldr   sp, =tos_svc            @ initialise SVC mode stack
 
-                     bl    hilevel_handler_rst     @ invoke high-level C function
-                     b     .                       @ halt
+                     /*new line*/
+										 sub   sp, sp, #68             @ initialise dummy context
+                     /*new line*/
+										 mov   r0, sp                  @ set    high-level C function arg. = SP
 
+                     bl    hilevel_handler_rst     @ invoke high-level C function
+
+
+                     /*new line*/
+                     ldmia sp!, { r0, lr }         @ load     USR mode PC and CPSR
+                     /*new line*/
+                     msr   spsr, r0                @ move     USR mode        CPSR
+                     /*new line*/
+                     ldmia sp, { r0-r12, sp, lr }^ @ restore  USR mode registers /*new line tha would reinitialize the whole process*/
+                     /*new line*/
+                     add   sp, sp, #60             @ update   SVC mode SP*/
+                     /*new line*/
+                     movs  pc, lr                  @ return from interrupt*/
+
+
+/*lolevel_handler_irq left undone*/
 lolevel_handler_irq: sub   lr, lr, #4              @ correct return address
-                     stmfd sp!, { r0-r3, ip, lr }  @ save    caller-save registers
+                    /*new chunks of code*/
+
+                     sub   sp, sp, #60             @ update   SVC mode stack
+                     stmia sp, { r0-r12, sp, lr }^ @ preserve USR registers
+                     mrs   r0, spsr                @ move     USR        CPSR
+                     stmdb sp!, { r0, lr }         @ store    USR PC and CPSR*/
+
+                     /*new chunks of code end*/
+
+
+
+                     /*new chunks of code*/
+
+                     mov   r0, sp                  @ set    high-level C function arg. = SP
+                     /*ldr   r1, [ lr, #-4 ]       @ load                     svc instruction
+                     /*bic   r1, r1, #0xFF000000   @ set    high-level C function arg. = svc immediate*/
+
+                     /*new chunks of code end*/
 
                      bl    hilevel_handler_irq     @ invoke high-level C function
+                     /**/
+                     /**/
 
-                     ldmfd sp!, { r0-r3, ip, lr }  @ restore caller-save registers
+
+                     /*new chunks of code*/
+
+                     ldmia sp!, { r0, lr }         @ load     USR mode PC and CPSR
+                     msr   spsr, r0                @ move     USR mode        CPSR
+
+                     ldmia sp, { r0-r12, sp, lr }^ @ restore  USR mode registers
+                     add   sp, sp, #60             @ update   SVC mode SP*/
+
+                     /*new chunks of code end*/
+
+
                      movs  pc, lr                  @ return from interrupt
 
 lolevel_handler_svc: sub   lr, lr, #0              @ correct return address
-                     stmfd sp!, { r0-r3, ip, lr }  @ save    caller-save registers
+                     sub   sp, sp, #60             @ update   SVC mode stack
+                     stmia sp, { r0-r12, sp, lr }^ @ preserve USR registers
+                     mrs   r0, spsr                @ move     USR        CPSR
+                     stmdb sp!, { r0, lr }         @ store    USR PC and CPSR
 
+                     mov   r0, sp                  @ set    high-level C function arg. = SP
+                     ldr   r1, [ lr, #-4 ]         @ load                     svc instruction
+                     bic   r1, r1, #0xFF000000     @ set    high-level C function arg. = svc immediate
                      bl    hilevel_handler_svc     @ invoke high-level C function
 
-                     ldmfd sp!, { r0-r3, ip, lr }  @ restore caller-save registers
-                     movs  pc, lr                  @ return from interrupt 
+                     ldmia sp!, { r0, lr }         @ load     USR mode PC and CPSR
+                     msr   spsr, r0                @ move     USR mode        CPSR
+                     ldmia sp, { r0-r12, sp, lr }^ @ restore  USR mode registers
+                     add   sp, sp, #60             @ update   SVC mode SP
+                     movs  pc, lr                  @ return from interrupt
