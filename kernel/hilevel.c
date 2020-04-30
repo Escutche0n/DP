@@ -6,7 +6,6 @@
  */
 
 #include "hilevel.h"
-#include <string.h>
 #define OFFSET 0x00001000                                             // Define the space offset for each stack
 
 pcb_t procTab[ MAX_PROCS ]; pcb_t* executing = NULL;
