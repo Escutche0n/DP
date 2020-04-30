@@ -38,7 +38,7 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
 
 void schedule( ctx_t* ctx ) {
   int max_priority = -1;
-  int max_index = -1;
+  int max_index;
   for( int i = 0; i < MAX_PROCS; i ++ ){
     if( executing->pid == procTab[ i ].pid ){
       continue;
@@ -55,22 +55,13 @@ void schedule( ctx_t* ctx ) {
   }
 
   procTab[ max_index ].age = 0;
-
-  if( procTab[ max_index ].status == STATUS_READY ){
-    executing -> status = STATUS_READY;
-    procTab[ max_index ].status = STATUS_EXECUTING;
-    dispatch( ctx, executing, &procTab[ max_index ] );
-  }
+  dispatch( ctx, executing, &procTab[ max_index ]);
 
   return;
 }
 
-extern void     main_P3(); 
-extern uint32_t tos_P3;
-extern void     main_P4(); 
-extern uint32_t tos_P4;
-extern void     main_P5(); 
-extern uint32_t tos_P5;
+extern void     main_console(); 
+extern uint32_t tos_console;
 
 void hilevel_handler_rst( ctx_t* ctx ) {
   /* Invalidate all entries in the process table, so it's clear they are not
@@ -100,34 +91,34 @@ void hilevel_handler_rst( ctx_t* ctx ) {
    */
 
   memset( &procTab[ 0 ], 0, sizeof( pcb_t ) );                        // Initialise 0-th PCB = P_3
-  procTab[ 0 ].pid      = 1;                                          // Set pid = 1
+  procTab[ 0 ].pid      = 0;                                          // Set pid = 1
   procTab[ 0 ].status   = STATUS_READY;
-  procTab[ 0 ].tos      = ( uint32_t )( &tos_P3  );
+  procTab[ 0 ].tos      = ( uint32_t )( &tos_console );
   procTab[ 0 ].ctx.cpsr = 0x50;
-  procTab[ 0 ].ctx.pc   = ( uint32_t )( &main_P3 );
+  procTab[ 0 ].ctx.pc   = ( uint32_t )( &main_console );
   procTab[ 0 ].ctx.sp   = procTab[ 0 ].tos;
   procTab[ 0 ].age      = 0;
   procTab[ 0 ].priority = 1;
 
-  memset( &procTab[ 1 ], 0, sizeof( pcb_t ) );                        // Initialise 1-st PCB = P_4
-  procTab[ 1 ].pid      = 2;                                          // Set pid = 2
-  procTab[ 1 ].status   = STATUS_READY;
-  procTab[ 1 ].tos      = ( uint32_t )( &tos_P4  );
-  procTab[ 1 ].ctx.cpsr = 0x50;
-  procTab[ 1 ].ctx.pc   = ( uint32_t )( &main_P4 );
-  procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
-  procTab[ 1 ].age      = 0;
-  procTab[ 1 ].priority = 1;
+  // memset( &procTab[ 1 ], 0, sizeof( pcb_t ) );                        // Initialise 1-st PCB = P_4
+  // procTab[ 1 ].pid      = 2;                                          // Set pid = 2
+  // procTab[ 1 ].status   = STATUS_READY;
+  // procTab[ 1 ].tos      = ( uint32_t )( &tos_P4  );
+  // procTab[ 1 ].ctx.cpsr = 0x50;
+  // procTab[ 1 ].ctx.pc   = ( uint32_t )( &main_P4 );
+  // procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
+  // procTab[ 1 ].age      = 0;
+  // procTab[ 1 ].priority = 1;
 
-  memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
-  procTab[ 2 ].pid      = 3;                                          // Set pid = 3
-  procTab[ 2 ].status   = STATUS_READY;
-  procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
-  procTab[ 2 ].ctx.cpsr = 0x50;
-  procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
-  procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
-  procTab[ 2 ].age      = 0;
-  procTab[ 2 ].priority = 1;
+  // memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
+  // procTab[ 2 ].pid      = 3;                                          // Set pid = 3
+  // procTab[ 2 ].status   = STATUS_READY;
+  // procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
+  // procTab[ 2 ].ctx.cpsr = 0x50;
+  // procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
+  // procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
+  // procTab[ 2 ].age      = 0;
+  // procTab[ 2 ].priority = 1;
 
   /* Once the PCBs are initialised, we arbitrarily select the 0-th PCB to be 
    * executed: there is no need to preserve the execution context, since it 
@@ -164,7 +155,7 @@ void hilevel_handler_svc( ctx_t* ctx, uint32_t id ) {
       break;
     }
 
-    case 0x01 : { // 0x01 => write( fd, x, n )
+    case 0x01 : { // 0x01 =>   write( fd, x, n )
       int   fd = ( int   )( ctx->gpr[ 0 ] );  
       char*  x = ( char* )( ctx->gpr[ 1 ] );  
       int    n = ( int   )( ctx->gpr[ 2 ] ); 
