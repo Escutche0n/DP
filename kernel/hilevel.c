@@ -38,16 +38,16 @@ void dispatch( ctx_t* ctx, pcb_t* prev, pcb_t* next ) {
 void schedule( ctx_t* ctx ) {
   int max_priority = -1;
   int max_index;
-  for( int i = 0; i < MAX_PROCS; i ++ ){
-    if( executing->pid == procTab[ i ].pid ){
+  for( int i = 0; i < MAX_PROCS; i ++ ) {
+    if( executing->pid == procTab[ i ].pid ) {
       continue;
     } else {
       procTab[ i ].age ++;
     }
   }
 
-  for( int i = 0; i < MAX_PROCS; i ++ ){                               // 找出最大的优先级的值与其序列数
-    if( procTab[ i ].priority + procTab[ i ].age > max_priority){
+  for( int i = 0; i < MAX_PROCS; i ++ ) {                               // 找出最大的优先级的值与其序列数
+    if( procTab[ i ].priority + procTab[ i ].age > max_priority) {
       max_priority = procTab[ i ].priority + procTab[ i ].age;
       max_index = i;
     }
@@ -59,23 +59,20 @@ void schedule( ctx_t* ctx ) {
   return;
 }
 
+pcb_t* get_next_PCB() {
+  for( int i = 0; i < MAX_PROCS; i++ ){
+    if( procTab[ i ].status == STATUS_CREATED ){
+      return &procTab[ i ];
+      break;
+    }
+    return NULL;
+  }
+}
 extern void     main_console(); 
 extern uint32_t tos_console;
+extern uint32_t tos_user;
 
 void hilevel_handler_rst( ctx_t* ctx ) {
-  /* Invalidate all entries in the process table, so it's clear they are not
-   * representing valid (i.e., active) processes.
-   */
-  TIMER0->Timer1Load  = 0x00100000;                                   // Select period = 2^20 ticks ~= 1 sec
-  TIMER0->Timer1Ctrl  = 0x00000002;                                   // Select 32-bit   timer
-  TIMER0->Timer1Ctrl |= 0x00000040;                                   // Select periodic timer
-  TIMER0->Timer1Ctrl |= 0x00000020;                                   // Enable          timer interrupt
-  TIMER0->Timer1Ctrl |= 0x00000080;                                   // Enable          timer
-
-  GICC0->PMR          = 0x000000F0;                                   // Unmask all      interrupts
-  GICD0->ISENABLER1  |= 0x00000010;                                   // Enable timer    interrupt
-  GICC0->CTLR         = 0x00000001;                                   // Enable GIC      interface
-  GICD0->CTLR         = 0x00000001;                                   // Enable GIC      distributor
 
   for( int i = 0; i < MAX_PROCS; i++ ) {
     procTab[ i ].status = STATUS_INVALID;                             // Initialised STATUS_INVALID;
@@ -89,41 +86,38 @@ void hilevel_handler_rst( ctx_t* ctx ) {
    * - the PC and SP values match the entry point and top of stack. 
    */
 
-  memset( &procTab[ 0 ], 0, sizeof( pcb_t ) );                        // Initialise 0-th PCB = P_3
-  procTab[ 0 ].pid      = 0;                                          // Set pid = 1
+  memset( &procTab[ 0 ], 0, sizeof( pcb_t ) );                        // Initialise PCB console
+  procTab[ 0 ].pid      = 0;                                          // Set pid = 0
   procTab[ 0 ].status   = STATUS_READY;
   procTab[ 0 ].tos      = ( uint32_t )( &tos_console );
   procTab[ 0 ].ctx.cpsr = 0x50;
   procTab[ 0 ].ctx.pc   = ( uint32_t )( &main_console );
   procTab[ 0 ].ctx.sp   = procTab[ 0 ].tos;
   procTab[ 0 ].age      = 0;
-  procTab[ 0 ].priority = 1;
+  procTab[ 0 ].priority = 2;
 
-  // memset( &procTab[ 1 ], 0, sizeof( pcb_t ) );                        // Initialise 1-st PCB = P_4
-  // procTab[ 1 ].pid      = 2;                                          // Set pid = 2
-  // procTab[ 1 ].status   = STATUS_READY;
-  // procTab[ 1 ].tos      = ( uint32_t )( &tos_P4  );
-  // procTab[ 1 ].ctx.cpsr = 0x50;
-  // procTab[ 1 ].ctx.pc   = ( uint32_t )( &main_P4 );
-  // procTab[ 1 ].ctx.sp   = procTab[ 1 ].tos;
-  // procTab[ 1 ].age      = 0;
-  // procTab[ 1 ].priority = 1;
+  for( int i = 1; i < MAX_PROCS; i++ ){
+    memset( &procTab[ 1 ], 0, sizeof( pcb_t ) );                      // Initialise dynamic PCBs
+    procTab[ i ].pid      = i;                                        // Set pid = i
+    procTab[ i ].status   = STATUS_CREATED;
+    procTab[ i ].tos      = ( uint32_t )( &tos_console ) - ( i * OFFSET );
+    procTab[ i ].ctx.cpsr = 0x50;
+    procTab[ i ].ctx.sp   = procTab[ i ].tos;
+    procTab[ i ].age      = 0;
+    procTab[ i ].priority = 1;
+  }
 
-  // memset( &procTab[ 2 ], 0, sizeof( pcb_t ) );                        // Initialise 2-nd PCB = P_5
-  // procTab[ 2 ].pid      = 3;                                          // Set pid = 3
-  // procTab[ 2 ].status   = STATUS_READY;
-  // procTab[ 2 ].tos      = ( uint32_t )( &tos_P5  );
-  // procTab[ 2 ].ctx.cpsr = 0x50;
-  // procTab[ 2 ].ctx.pc   = ( uint32_t )( &main_P5 );
-  // procTab[ 2 ].ctx.sp   = procTab[ 2 ].tos;
-  // procTab[ 2 ].age      = 0;
-  // procTab[ 2 ].priority = 1;
+  TIMER0->Timer1Load  = 0x00100000;                                   // Select period = 2^20 ticks ~= 1 sec
+  TIMER0->Timer1Ctrl  = 0x00000002;                                   // Select 32-bit   timer
+  TIMER0->Timer1Ctrl |= 0x00000040;                                   // Select periodic timer
+  TIMER0->Timer1Ctrl |= 0x00000020;                                   // Enable          timer interrupt
+  TIMER0->Timer1Ctrl |= 0x00000080;                                   // Enable          timer
 
-  /* Once the PCBs are initialised, we arbitrarily select the 0-th PCB to be 
-   * executed: there is no need to preserve the execution context, since it 
-   * is invalid on reset (i.e., no process was previously executing).
-   */
-
+  GICC0->PMR          = 0x000000F0;                                   // Unmask all      interrupts
+  GICD0->ISENABLER1  |= 0x00000010;                                   // Enable timer    interrupt
+  GICC0->CTLR         = 0x00000001;                                   // Enable GIC      interface
+  GICD0->CTLR         = 0x00000001;                                   // Enable GIC      distributor
+  
   dispatch( ctx, NULL, &procTab[ 0 ] );
   int_enable_irq();
 
@@ -136,8 +130,14 @@ void hilevel_handler_irq( ctx_t* ctx ) {
 
   // Step 4: handle the interrupt, then clear (or reset) the source.
   if( id == GIC_SOURCE_TIMER0 ) {
+    PL011_putc( UART0, '[', true );
+    PL011_putc( UART0, 'T', true );
+    PL011_putc( UART0, 'I', true );
+    PL011_putc( UART0, 'M', true );
+    PL011_putc( UART0, 'E', true );
+    PL011_putc( UART0, 'R', true );
+    PL011_putc( UART0, ']', true );
     schedule( ctx );
-    // PL011_putc( UART0, 'T', true );
     TIMER0->Timer1IntClr = 0x01;
   }
 
@@ -168,19 +168,32 @@ void hilevel_handler_svc( ctx_t* ctx, uint32_t id ) {
       break;
     }
 
-    case 0x03 : { // 0x03 => exit( int x )
-      // int x = ctx->gpr[0];
-      // exce->status = STATUS_TERMINATED;
-      // current->pid = -1;
-      // priority(ctx);
-      // break;
+    case 0x03 : { // 0x03 => SYS_FORK()
+      procTab[ 0 ].priority += 1;
+
+      pcb_t* child = get_next_PCB();
+      if ( child != NULL ) {
+        memcpy( &child->ctx, ctx, sizeof( ctx_t ) );
+        child->status = STATUS_READY;
+      }
+
+      uint32_t sp_offset = ( uint32_t ) &executing->tos - ctx->sp;
+      child->ctx.sp = child->tos - sp_offset;
+      memcpy( ( void* ) child->ctx.sp, ( void* ) ctx->sp, sp_offset);
+
+      child->ctx.gpr[ 0 ] = 0;
+      ctx->gpr[ 0 ] = child->pid;
+
+      break;
     }
 
-    case 0x04 : {
+    case 0x04 : { // 0x04 => SYS_EXIT()
       break;
     }
 
     case 0x05 : {
+      ctx->pc = ctx->gpr[0];
+
       break;
     }
 
