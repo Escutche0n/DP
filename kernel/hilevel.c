@@ -105,7 +105,7 @@ void hilevel_handler_rst( ctx_t* ctx ) {
     procTab[ i ].age      = 0;
   }
 
-  TIMER0->Timer1Load  = 0x00001000;                                   // Select period = 2^20 ticks ~= 1 sec
+  TIMER0->Timer1Load  = 0x00100000;                                   // Select period = 2^20 ticks ~= 1 sec
   TIMER0->Timer1Ctrl  = 0x00000002;                                   // Select 32-bit   timer
   TIMER0->Timer1Ctrl |= 0x00000040;                                   // Select periodic timer
   TIMER0->Timer1Ctrl |= 0x00000020;                                   // Enable          timer interrupt
@@ -145,7 +145,7 @@ void hilevel_handler_svc( ctx_t* ctx, uint32_t id ) {
       break;
     }
 
-    case 0x01 : { // 0x01 =>   write( fd, x, n )
+    case 0x01 : { // 0x01 => write( fd, x, n )
       int   fd = ( int   )( ctx->gpr[ 0 ] );  
       char*  x = ( char* )( ctx->gpr[ 1 ] );  
       int    n = ( int   )( ctx->gpr[ 2 ] ); 
@@ -204,6 +204,22 @@ void hilevel_handler_svc( ctx_t* ctx, uint32_t id ) {
       // PL011_putc( UART0, 'C', true );
       // PL011_putc( UART0, ']', true );
       ctx->pc = ctx->gpr[0];
+      break;
+    }
+
+    case 0x06 : { // 0x06 => SYS_KILL()
+      int pid = ctx->gpr[0];
+      if( pid == -1 ){
+        for( int i = 1; i < 20; i++ ){
+          procTab[i].status = STATUS_TERMINATED;
+        }
+        procTab[0].priority = 2;
+      }
+      else if(pid >= 0 && pid < MAX_PROCS){
+          procTab[pid].status = STATUS_TERMINATED;
+          procTab[0].priority -= 1;
+      }
+      schedule(ctx);
       break;
     }
 
