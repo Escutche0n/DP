@@ -34,9 +34,10 @@ void gets( char* x, int n ) {
  * into the kernel image, it returns a pointer to the entry point.
  */
 
-extern void main_P3(); 
-extern void main_P4(); 
-extern void main_P5(); 
+extern void main_P3();
+extern void main_P4();
+extern void main_P5();
+extern void main_P6();
 
 void* load( char* x ) {
   if     ( 0 == strcmp( x, "P3" ) ) {
@@ -48,7 +49,9 @@ void* load( char* x ) {
   else if( 0 == strcmp( x, "P5" ) ) {
     return &main_P5;
   }
-
+  else if( 0 == strcmp( x, "P6" ) ) {
+    return &main_P6;
+  }
   return NULL;
 }
 
