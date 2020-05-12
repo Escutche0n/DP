@@ -19,7 +19,7 @@ University of Bristol COMS20001 coursework 2.
 So that we can calibrate and improve the assignment in the future, give us
 a rough idea how long (in hours) you spent on it *in total*:
 
-effort : `[...]` hours
+effort : `130` hours
 
 -------------------------------------------------------------------------------
 
@@ -50,12 +50,12 @@ reasoning about these latter aspects forms part of the assessment, so they
 are not (necessarily) detailed explicitly.
 
     Stage 1 : a baseline kernel
-`[?]`           - pre-emptive multi-tasking                            ( 30%)
-`[?]`           - priority-based scheduler                             ( 10%)
+`[x]`           - pre-emptive multi-tasking                            ( 30%)
+`[x]`           - priority-based scheduler                             ( 10%)
 
     Stage 2 : closed generalisations and enhancements
-`[?]`           - fork, exec, and exit system calls                    ( 15%)
-`[?]`           - Inter-Process Communication (IPC)                    ( 15%)
+`[x]`           - fork, exec, and exit system calls                    ( 15%)
+`[x]`           - Inter-Process Communication (IPC)                    ( 15%)
 
     Stage 3 : open   generalisations and enhancements                ( 30%)
 `[?]`           - MMU-based protection and virtualisation
